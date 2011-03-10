@@ -1,0 +1,4 @@
+http://stackoverflow.com/questions/992019/java-256bit-aes-encryption/992413#992413
+http://stackoverflow.com/questions/992019/java-256bit-aes-encryption
+http://stackoverflow.com/questions/1440030/how-to-implement-java-256-bit-aes-encryption-with-cbc
+http://passingcuriosity.com/2009/aes-encryption-in-python-with-m2crypto/
