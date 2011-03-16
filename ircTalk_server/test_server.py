@@ -70,7 +70,7 @@ class IRCTalkServer(threading.Thread):
 					if not data:
                                                 print "NO DATA"
                                                 break
-					dataCheck, JSON = self.decryptData(base64.b64encode(data.rstrip()))
+					dataCheck, JSON = self.decryptData(data.rstrip())
 					print 'Recieved from Client:', repr(JSON)
 					#print 'Recieved from Client:', repr(data)
 					#if dataCheck:
@@ -99,7 +99,7 @@ class IRCTalkServer(threading.Thread):
 		#JSON = json.dumps(plaintext, separators=(',',':'))
 		JSON = plaintext
 		#print "Size of JSON:", len(JSON)
-		ciphertext = self.cipher.encrypt(pad(JSON))
+		ciphertext = self.cipher.encrypt(pad(JSON)).encode('hex').upper()
 		print "Size of ciphertext:", len(ciphertext)
 		return ciphertext
 	
@@ -107,7 +107,7 @@ class IRCTalkServer(threading.Thread):
 		try:
 			# decompress data to ciphertext, decrypt, convert to json
 			print "length of ciphertext:", len(ciphertext)
-			ptext = self.cipher.decrypt(ciphertext)
+			ptext = unpad(self.cipher.decrypt(ciphertext.decode('hex')))
 			print "ptext: ", repr(ptext)
 			JSON = ptext
 			#plaintext = unpad(self.cipher.decrypt(ciphertext))
