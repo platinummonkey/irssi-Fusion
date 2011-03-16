@@ -54,7 +54,7 @@ class clientHandler {
 	    try {
 		    byte[] cipherbyte = ecipher.doFinal(plaintext.getBytes("UTF-8")); 
 		    //String ciphertext = new String(ecipher.doFinal(plaintext.getBytes("UTF8")));
-		    return this.byteToHex(cipherbyte);
+		    return byteToHex(cipherbyte);
 	    } catch (Exception e){
 	 	    e.printStackTrace();
 	 	    return null;
@@ -64,7 +64,8 @@ class clientHandler {
     public String decrypt(String ciphertext) {
 	    // decrypt hex string
 	    try {
-			String plaintext = new String(dcipher.doFinal(this.hexToByte(ciphertext)), "UTF-8");
+			System.out.println("decrypt byte length: " + hexToByte(ciphertext).length);
+			String plaintext = new String(dcipher.doFinal(hexToByte(ciphertext)), "UTF-8");
 		    //String plaintext = new String(dcipher.doFinal(ciphertext.getBytes("UTF8")), "UTF-8");
 		    return plaintext;
 	    } catch (Exception e) {
@@ -106,16 +107,6 @@ class clientHandler {
 			System.err.println("Couldn't get I/O for the connection");
 		}
 	}
-    
-    public static byte[] hexStringToByteArray(String s) {
-		int len = s.length();
-		byte[] data = new byte[len / 2];
-		for (int i = 0; i < len; i += 2) {
-			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-								+ Character.digit(s.charAt(i+1), 16));
-		}
-		return data;
-	}
 	 
 	 public void androidClientHandler() {
 		 // actual communication
@@ -124,19 +115,8 @@ class clientHandler {
 			 	 System.out.println("Waiting for IV..");
 				 String iv;
 				 iv = in.readLine();
-				 byte [] ivb = hexStringToByteArray(iv);
+				 byte [] ivb = hexToByte(iv);
 				 System.out.println("Got IV..." + iv);
-				 // Setup ciphers
-				 //setupCrypto(masterkey, iv);
-				 // convert IV to byte array for crypto
-				 //byte[] ivb = iv.getBytes("UTF8");
-				 //AlgorithmParameterSpec paramSpec = new IvParameterSpec(ivb);
-				 //SecretKeySpec skey = new SecretKeySpec(masterkey.getBytes("UTF8"), "AES");
-				 //ecipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-				 //dcipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-				 //ecipher.init(Cipher.ENCRYPT_MODE, skey, paramSpec);
-				 //dcipher.init(Cipher.DECRYPT_MODE, skey, paramSpec);
-				 // ciphers are setup
 				 setupCrypto(ivb, masterkey);
 				 String ciphertext;
 				 String plaintext;
@@ -147,7 +127,8 @@ class clientHandler {
 				 out.println(ciphertext);
 				 System.out.println("Waiting for Server to reply");
 				 String responseLine;
-				 responseLine = in.readLine();
+				 responseLine = in.readLine().replaceAll("\\\\n", "");
+				 System.out.println("Recieved from Server: " + responseLine + " - length: " + responseLine.length());
 				 plaintext = decrypt(responseLine);
 				 System.out.println("Recieved from Server: " + plaintext);
 				 System.out.println("Closing Connection");

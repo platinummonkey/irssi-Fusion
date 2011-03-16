@@ -13,7 +13,7 @@ serverPort = 5555 # non-reserved
 masterkey = 'mysecretpassword'
 
 ### Settings (DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING)
-BLOCK_SIZE = 32 # Block-size for cipher (16, 24 or 32 for AES)
+BLOCK_SIZE = 16 # Block-size for cipher (16, 24 or 32 for AES)
 KEY_MULT_SIZE = 16 # key size must be a multiple of this
 #PADDING = '{' # block padding for AES
 dataQueue = Queue.Queue()
@@ -82,9 +82,9 @@ class IRCTalkServer(threading.Thread):
 						#print "Size of compresseddata:", len(senddata)
 						#connection.send(senddata)
 					print "Sending reply to client..."
-					senddata = self.encryptData('SUCCESS\n')
-					print "reply data:", repr(senddata)
-					connection.send(senddata)
+					senddata = self.encryptData('test')
+					print "reply data:", repr("%s%s" % (senddata, "\n"))
+					connection.send("%s%s" % (senddata, "\n"))
 					#connection.send("Hello back mr android!")
 					#successReply = connection.recv(256) # only for "END REQUEST"
                                         break
