@@ -14,6 +14,7 @@ masterkey = 'mysecretpassword'
 
 ### Settings (DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING)
 BLOCK_SIZE = 32 # Block-size for cipher (16, 24 or 32 for AES)
+KEY_MULT_SIZE = 16 # key size must be a multiple of this
 #PADDING = '{' # block padding for AES
 dataQueue = Queue.Queue()
 
@@ -21,8 +22,12 @@ dataQueue = Queue.Queue()
 # sufficiently pad text
 #pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * PADDING
 # PKCS5 Padding
-pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCKSIZE - len(s) % BLOCK_SIZE)
+pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
+keypad = lambda s: s + (KEY_MULT_SIZE - len(s) % KEY_MULT_SIZE) * chr(KEY_MULT_SIZE - len(s) % KEY_MULT_SIZE)
 unpad = lambda s : s[0:-ord(s[-1])]
+
+#print "pad(masterkey)", repr(pad(masterkey))
+#print "keypad(masterkey)", repr(keypad(masterkey))
 
 # generate new IV's - why you ask? ... just look at WEP
 def createCipher(key):
@@ -53,17 +58,21 @@ class IRCTalkServer(threading.Thread):
 				connection, address = self.sockobj.accept()
 				print 'Server connected by ', address
 				# generate cipher and get first IV - prevent same WEP hacks
-				#self.cipher, self.iv = createCipher(masterkey)
-				#print "IV:", self.iv.encode('hex')
-				#connection.send(self.iv) # send iv first
+				#paddedKey = keypad(masterkey)
+				#print "master key:", masterkey, " - padded key:", paddedKey, " - diff key:", keypad('test')
+				self.cipher, self.iv = createCipher(masterkey)
+				print "IV:", self.iv.encode('hex'), "Sending IV: ", repr(self.iv)
+				connection.send("%s%s" % (self.iv.encode('hex'),'\n')) # send iv first
 				while True and not self.die: # read from client
+					print "waiting for client"
 					data = connection.recv(10485760)
+					print "recieved from client:", repr(data.rstrip())
 					if not data:
                                                 print "NO DATA"
                                                 break
-					#dataCheck, JSON = self.decryptData(data)
-					#print 'Recieved from Client:', repr(JSON)
-					print 'Recieved from Client:', repr(data)
+					dataCheck, JSON = self.decryptData(base64.b64encode(data.rstrip()))
+					print 'Recieved from Client:', repr(JSON)
+					#print 'Recieved from Client:', repr(data)
 					#if dataCheck:
 						#senddata = self.encryptData('SUCCESS')
 						#print "Size of compresseddata:", len(senddata)
@@ -73,7 +82,10 @@ class IRCTalkServer(threading.Thread):
 						#print "Size of compresseddata:", len(senddata)
 						#connection.send(senddata)
 					print "Sending reply to client..."
-					connection.send("Hello back mr android!")
+					senddata = self.encryptData('SUCCESS\n')
+					print "reply data:", repr(senddata)
+					connection.send(senddata)
+					#connection.send("Hello back mr android!")
 					#successReply = connection.recv(256) # only for "END REQUEST"
                                         break
                                 print "Closing connection..."
@@ -82,19 +94,28 @@ class IRCTalkServer(threading.Thread):
                         print "exception on try loop"
 			pass # an error occurred, just drop it, the client will try again later
 	
-	def encryptData(self, text):
+	def encryptData(self, plaintext):
 		# convert to json string, pad the string, then encrypt, then compress
-		JSON = json.dumps(text, separators=(',',':'))
-		print "Size of JSON:", len(JSON)
+		#JSON = json.dumps(plaintext, separators=(',',':'))
+		JSON = plaintext
+		#print "Size of JSON:", len(JSON)
 		ciphertext = self.cipher.encrypt(pad(JSON))
 		print "Size of ciphertext:", len(ciphertext)
 		return ciphertext
 	
-	def decryptData(self, data):
-		# decompress data to ciphertext, decrypt, convert to json
-		ciphertext = data
-		plaintext = unpad(self.cipher.decrypt(ciphertext))
-		JSON = json.loads(plaintext)
+	def decryptData(self, ciphertext):
+		try:
+			# decompress data to ciphertext, decrypt, convert to json
+			print "length of ciphertext:", len(ciphertext)
+			ptext = self.cipher.decrypt(ciphertext)
+			print "ptext: ", repr(ptext)
+			JSON = ptext
+			#plaintext = unpad(self.cipher.decrypt(ciphertext))
+			##JSON = json.loads(plaintext)
+			#JSON = plaintext
+		except:
+			print "Error on decryption"
+			JSON = None
 		return (True, JSON)
 
 	def addToQueue(self, data):
