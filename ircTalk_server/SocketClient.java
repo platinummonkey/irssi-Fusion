@@ -64,8 +64,10 @@ class clientHandler {
     public String decrypt(String ciphertext) {
 	    // decrypt hex string
 	    try {
-			System.out.println("decrypt byte length: " + hexToByte(ciphertext).length);
-			String plaintext = new String(dcipher.doFinal(hexToByte(ciphertext)), "UTF-8");
+			System.out.println("decrypt byte length: " + hexToByte(ciphertext.trim()).length);
+			String tp = new String(hexToByte(ciphertext.trim()), "UTF-8");
+			System.out.println("toString(): " + tp);
+			String plaintext = new String(dcipher.doFinal(hexToByte(ciphertext.trim())), "UTF-8");
 		    //String plaintext = new String(dcipher.doFinal(ciphertext.getBytes("UTF8")), "UTF-8");
 		    return plaintext;
 	    } catch (Exception e) {

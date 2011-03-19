@@ -88,7 +88,7 @@ class IRCTalkServer(threading.Thread):
 					#connection.send("Hello back mr android!")
 					#successReply = connection.recv(256) # only for "END REQUEST"
                                         break
-                                print "Closing connection..."
+                                print "Closing connection... \n\n"
 				connection.close()
 		except:
                         print "exception on try loop"
@@ -107,7 +107,13 @@ class IRCTalkServer(threading.Thread):
 		try:
 			# decompress data to ciphertext, decrypt, convert to json
 			print "length of ciphertext:", len(ciphertext)
-			ptext = unpad(self.cipher.decrypt(ciphertext.decode('hex')))
+			ptext = ciphertext.decode('hex')
+			print "unhexifed:", repr(ptext)
+			ptext = self.cipher.decrypt(ptext)
+			print "decrypted:", repr(ptext)
+			ptext = unpad(ptext)
+			print "unpadded:", repr(ptext)
+			#ptext = unpad(self.cipher.decrypt(ciphertext.decode('hex')))
 			print "ptext: ", repr(ptext)
 			JSON = ptext
 			#plaintext = unpad(self.cipher.decrypt(ciphertext))
