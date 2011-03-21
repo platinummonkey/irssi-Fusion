@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/channelname" android:text="@string/channelname"></TextView>
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/messages" android:text="@string/messages"></TextView>
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_horizontal">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:text="server | #channel"
+		android:layout_gravity="center_horizontal"
+		android:id="@+id/serverchannel"
+	/>
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:text="channel topic"
+		android:layout_gravity="center_horizontal"
+		android:id="@+id/channeltopic"
+	/>
+
+</LinearLayout>
+
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/ListView01" android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+</ListView>
 </LinearLayout>

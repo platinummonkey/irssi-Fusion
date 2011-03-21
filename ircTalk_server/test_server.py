@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import os, time, threading, json
+import os, time, threading
+import simplejson as json
 from socket import *
 import sys, base64, Queue
 
@@ -60,9 +61,10 @@ class IRCTalkServer(threading.Thread):
 				# generate cipher and get first IV - prevent same WEP hacks
 				#paddedKey = keypad(masterkey)
 				#print "master key:", masterkey, " - padded key:", paddedKey, " - diff key:", keypad('test')
-				self.cipher, self.iv = createCipher(masterkey)
-				print "IV:", self.iv.encode('hex'), "Sending IV: ", repr(self.iv)
-				connection.send("%s%s" % (self.iv.encode('hex'),'\n')) # send iv first
+				#self.ecipher, self.iv = createCipher(masterkey)
+				#self.dcipher, self.iv = createCipher(masterkey)
+				#print "IV:", self.iv.encode('hex'), "Sending IV: ", repr(self.iv)
+				#connection.send("%s%s" % (self.iv.encode('hex'),'\n')) # send iv first
 				while True and not self.die: # read from client
 					print "waiting for client"
 					data = connection.recv(10485760)
@@ -70,9 +72,9 @@ class IRCTalkServer(threading.Thread):
 					if not data:
                                                 print "NO DATA"
                                                 break
-					dataCheck, JSON = self.decryptData(data.rstrip())
-					print 'Recieved from Client:', repr(JSON)
-					#print 'Recieved from Client:', repr(data)
+					#dataCheck, JSON = self.decryptData(data.rstrip())
+					#print 'Recieved from Client:', repr(JSON)
+					print 'Recieved from Client:', repr(data)
 					#if dataCheck:
 						#senddata = self.encryptData('SUCCESS')
 						#print "Size of compresseddata:", len(senddata)
@@ -82,9 +84,30 @@ class IRCTalkServer(threading.Thread):
 						#print "Size of compresseddata:", len(senddata)
 						#connection.send(senddata)
 					print "Sending reply to client..."
-					senddata = self.encryptData('test')
-					print "reply data:", repr("%s%s" % (senddata, "\n"))
-					connection.send("%s%s" % (senddata, "\n"))
+					#senddata = self.encryptData(r'test')
+					#senddata = "%s%s" % ('test', '\n');
+					plaintext = {'server': 'irc.freenode.org',
+								'channel': '#somechannel',
+								'messages': [
+									{'time': '12:44', 'nick': 'dude', 'address': 'dude@someplace.com', 'message': 'man that was a crazy day'},
+									{'time': '12:45', 'nick': 'noob', 'address': 'noob@149.133.14.11', 'message': 'yeah it was, i can\'t believe that we found that place!'},
+									{'time': '12:46', 'nick': 'noob0', 'address': 'noob@149.133.14.0', 'message': 'yup 0'},
+									{'time': '12:47', 'nick': 'noob1', 'address': 'noob@149.133.14.1', 'message': 'yup 1'},
+									{'time': '12:47', 'nick': 'noob2', 'address': 'noob@149.133.14.2', 'message': 'yup 2'},
+									{'time': '12:48', 'nick': 'noob3', 'address': 'noob@149.133.14.3', 'message': 'yup 3'},
+									{'time': '12:49', 'nick': 'noob4', 'address': 'noob@149.133.14.4', 'message': 'yup 4'},
+									{'time': '12:49', 'nick': 'noob5', 'address': 'noob@149.133.14.5', 'message': 'yup 5'},
+									{'time': '12:49', 'nick': 'noob6', 'address': 'noob@149.133.14.6', 'message': 'yup 6'},
+									{'time': '12:50', 'nick': 'noob7', 'address': 'noob@149.133.14.7', 'message': 'yup 7'},
+									{'time': '12:50', 'nick': 'noob8', 'address': 'noob@149.133.14.8', 'message': 'yup 8'},
+									{'time': '12:51', 'nick': 'noob9', 'address': 'noob@149.133.14.9', 'message': 'yup 9'},
+									]
+								}
+					print "set up plaintext:", repr(plaintext)
+					JSON = json.dumps(plaintext, separators=(',',':'))
+					print "json dump:", repr(JSON)
+					print "reply data:", repr(JSON)
+					connection.send("%s\n" % JSON)
 					#connection.send("Hello back mr android!")
 					#successReply = connection.recv(256) # only for "END REQUEST"
                                         break
@@ -99,7 +122,13 @@ class IRCTalkServer(threading.Thread):
 		#JSON = json.dumps(plaintext, separators=(',',':'))
 		JSON = plaintext
 		#print "Size of JSON:", len(JSON)
-		ciphertext = self.cipher.encrypt(pad(JSON)).encode('hex').upper()
+		ciphertext = pad(JSON.encode('utf8'))
+		print "padded text:", repr(ciphertext)
+		ciphertext = self.ecipher.encrypt(ciphertext)
+		print "ciphertext:", repr(ciphertext), "|", len(ciphertext), "|", ciphertext
+		#ciphertext = ciphertext.encode('hex').upper()
+		#print "hexified text:", repr(ciphertext)
+		#ciphertext = self.cipher.encrypt(pad(JSON)).encode('hex').upper()
 		print "Size of ciphertext:", len(ciphertext)
 		return ciphertext
 	
@@ -109,7 +138,7 @@ class IRCTalkServer(threading.Thread):
 			print "length of ciphertext:", len(ciphertext)
 			ptext = ciphertext.decode('hex')
 			print "unhexifed:", repr(ptext)
-			ptext = self.cipher.decrypt(ptext)
+			ptext = self.dcipher.decrypt(ptext)
 			print "decrypted:", repr(ptext)
 			ptext = unpad(ptext)
 			print "unpadded:", repr(ptext)
