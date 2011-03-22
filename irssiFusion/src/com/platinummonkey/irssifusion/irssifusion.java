@@ -4,12 +4,22 @@ import android.app.Activity;
 import android.os.Bundle;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnCreateContextMenuListener;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.ListView;
+import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 //import android.util.Log;
 
 public class irssifusion extends Activity {
@@ -29,7 +39,8 @@ public class irssifusion extends Activity {
     
 	TextView txtServerChannel;
 	TextView txtChannelTopic;
-	ListView listMessages; 
+	ListView listMessages;
+	protected ArrayList<Privmsg> privMsgs = new ArrayList<Privmsg>();
     
 	Socket testSocket = null;
 	//DataOutputStream out = null;
@@ -47,6 +58,15 @@ public class irssifusion extends Activity {
         txtServerChannel = (TextView) findViewById(R.id.serverchannel);
         txtChannelTopic = (TextView) findViewById(R.id.channeltopic);
         listMessages = (ListView) findViewById(R.id.ListView01);
+        
+        listMessages.setOnItemClickListener(new OnItemClickListener() {
+        	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+        		arg1.showContextMenu();
+        	}
+        });
+        
+        //ListView listMessages = getListView();
+        //listMessages.setTextFilterEnabled(true); // type filtering
         /*btnChannel = (Button) findViewById(R.id.btnChannel);
         btnChannel.setOnClickListener(new Button.OnClickListener() {
         	public void onClick(View v) {
@@ -62,7 +82,17 @@ public class irssifusion extends Activity {
         });
      */
       startServer();
-      channelTest();  
+      channelTest();
+      
+      
+//      listMessages.setOnItemClickListener(new OnItemLongClickListener() {
+//    	    public void onItemClick(AdapterView<?> parent, View view,
+//    	        int position, long id) {
+//    	      // When clicked, show a toast with the TextView text
+//    	      Toast.makeText(getApplicationContext(), ((TextView) view).getText(),
+//    	          Toast.LENGTH_SHORT).show();
+//    	    }
+//      });
     }
 
     public void startServer() {
@@ -74,14 +104,26 @@ public class irssifusion extends Activity {
 			//in = new DataInputStream(testSocket.getInputStream());
 			out = new PrintWriter(testSocket.getOutputStream(), true);
          	in = new BufferedReader(new InputStreamReader(testSocket.getInputStream()));
+         	txtServerChannel.setText("Server connected");
 		} catch (UnknownHostException e) {
-			System.err.println("Uknown Host");
+			txtServerChannel.setText("Failed connecting " + e);
 		} catch (IOException e) {
-			System.err.println("Couldn't get I/O for the connection");
+			txtServerChannel.setText("IO exception in connecting " + e);
 		}
 	}
     
+    private void refreshList() {
+    	listMessages.setAdapter(new ArrayAdapter<Privmsg>(this, R.layout.channel_list_item, privMsgs));
+    }
+    
     public void channelTest() {
+    	listMessages.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+    		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    			menu.setHeaderTitle("ContextMenu");
+    			menu.add(0, 1, 1, "Something should happen");
+    		}
+    	});
+    	
     	try {
     		// test server stuff
     		if (testSocket != null && out != null && in != null) {
@@ -125,11 +167,45 @@ public class irssifusion extends Activity {
     			String msgMessage = privmsg.getString("message").toString();
     			String msgTimestamp = privmsg.getString("time").toString();
     			String msgAddress = privmsg.getString("address").toString();
+    			privMsgs.add(new Privmsg(msgTimestamp, msgNick, msgAddress, msgMessage));
     			messages_arr[i] = "[" + msgTimestamp + "] " + msgNick + " | " + msgMessage;
     		}
-    		listMessages.setAdapter(new ArrayAdapter<String>(this, R.layout.channel_list_item, messages_arr));
+    		refreshList();
+    		//listMessages.setAdapter(new ArrayAdapter<String>(this, R.layout.channel_list_item, messages_arr));
     	} catch (Exception je) {
-    		txtChannelTopic.setText("failure" + je);
+    		txtChannelTopic.setText("failure " + je);
+    	}
+    }
+    
+    public boolean onContextItemSelected(MenuItem aItem) {
+    	AdapterContextMenuInfo info = (AdapterContextMenuInfo) aItem.getMenuInfo();
+    	
+    	switch (aItem.getItemId()) {
+    		case 1:
+    			Privmsg privmsgContexted = (Privmsg) listMessages.getAdapter().getItem(info.position);
+    			privMsgs.remove(privmsgContexted);
+    			refreshList();
+    			return true;
+    	}
+    	
+    	return false;
+    }
+    
+    protected class Privmsg {
+    	protected String nick;
+    	protected String address;
+    	protected String message;
+    	protected String time;
+    	
+    	protected Privmsg(String time, String nick, String address, String message) {
+    		this.time = time;
+    		this.nick = nick;
+    		this.address = address;
+    		this.message = message;
+    	}
+    	
+    	public String toString() {
+    		return "[" + time + "] " + nick + " | " + message;
     	}
     }
 }
