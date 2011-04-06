@@ -1,6 +1,7 @@
 package com.platinummonkey.irssifusion;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import java.io.*;
 import java.net.*;
@@ -20,9 +21,29 @@ import android.widget.Toast;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+//Content Provider imports
+import static android.provider.BaseColumns._ID;
+import static com.platinummonkey.irssifusion.Constants.CONTENT_URI;
+import static com.platinummonkey.irssifusion.Constants.TIME;
+import static com.platinummonkey.irssifusion.Constants.SEND;
+import static com.platinummonkey.irssifusion.Constants.SERVER;
+import static com.platinummonkey.irssifusion.Constants.TYPE;
+import static com.platinummonkey.irssifusion.Constants.TOPIC;
+import static com.platinummonkey.irssifusion.Constants.NICK;
+import static com.platinummonkey.irssifusion.Constants.ADDRESS;
+import static com.platinummonkey.irssifusion.Constants.MESSAGE;
+import static com.platinummonkey.irssifusion.Constants.HILIGHT;
+import static com.platinummonkey.irssifusion.Constants.NICKLIST;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.widget.SimpleCursorAdapter;
 //import android.util.Log;
 
 public class irssifusion extends Activity {
+	private static String[] FROM = { _ID, TIME, SEND, SERVER, TYPE, TOPIC, NICK, ADDRESS, MESSAGE, HILIGHT, NICKLIST, };
+	private static int[] TO = { R.id.rowid, R.id.time, R.id.send, R.id.server, R.id.type, R.id.topic, R.id.nick, R.id.address, R.id.message, R.id.hilight, R.id.nicklist, };
+	private static String ORDER_BY = TIME + " DESC";
+
 //    /** Called when the activity is first created. */
 //    @Override
 //    public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +75,9 @@ public class irssifusion extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.channel);
+        
+        // start the service if it didn't start on boot
+        startService(new Intent(IrssiFusionService.class.getName()));
         
         txtServerChannel = (TextView) findViewById(R.id.serverchannel);
         txtChannelTopic = (TextView) findViewById(R.id.channeltopic);
