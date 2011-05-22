@@ -23,6 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 //Content Provider imports
 import static android.provider.BaseColumns._ID;
+import static com.platinummonkey.irssifusion.Constants.TABLE_NAME;
 import static com.platinummonkey.irssifusion.Constants.CONTENT_URI;
 import static com.platinummonkey.irssifusion.Constants.TIME;
 import static com.platinummonkey.irssifusion.Constants.SEND;
@@ -36,12 +37,13 @@ import static com.platinummonkey.irssifusion.Constants.HILIGHT;
 import static com.platinummonkey.irssifusion.Constants.NICKLIST;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.widget.SimpleCursorAdapter;
 //import android.util.Log;
 
 public class irssifusion extends Activity {
 	private static String[] FROM = { _ID, TIME, SEND, SERVER, TYPE, TOPIC, NICK, ADDRESS, MESSAGE, HILIGHT, NICKLIST, };
-	private static int[] TO = { R.id.rowid, R.id.time, R.id.send, R.id.server, R.id.type, R.id.topic, R.id.nick, R.id.address, R.id.message, R.id.hilight, R.id.nicklist, };
+	//private static int[] TO = { R.id.rowid, R.id.time, R.id.send, R.id.server, R.id.type, R.id.topic, R.id.nick, R.id.address, R.id.message, R.id.hilight, R.id.nicklist, };
 	private static String ORDER_BY = TIME + " DESC";
 
 //    /** Called when the activity is first created. */
@@ -69,7 +71,7 @@ public class irssifusion extends Activity {
 	PrintWriter out = null;
 	BufferedReader in = null;
 	String plaintext;
-	
+	private MessagesData channelMessages;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,19 @@ public class irssifusion extends Activity {
         
         // start the service if it didn't start on boot
         startService(new Intent(IrssiFusionService.class.getName()));
+        
+        startServer();
+        
+        channelMessages = new MessagesData(this);
+        
+        try {
+        	//addEvent("Hello, Android!" );
+        	Cursor cursor = getMessages();
+        	channelTest(cursor);
+        	//showEvents(cursor);
+        } finally {
+        	channelMessages.close();
+        }
         
         txtServerChannel = (TextView) findViewById(R.id.serverchannel);
         txtChannelTopic = (TextView) findViewById(R.id.channeltopic);
@@ -105,8 +120,8 @@ public class irssifusion extends Activity {
         	}
         });
      */
-      startServer();
-      channelTest();
+      //startServer();
+      //channelTest();
       
       
 //      listMessages.setOnItemClickListener(new OnItemLongClickListener() {
@@ -118,7 +133,17 @@ public class irssifusion extends Activity {
 //    	    }
 //      });
     }
-
+    
+    private Cursor getMessages() {
+    	// Perform a managed query. The Activity will handle closing
+    	// and re-querying the cursor when needed.
+    	SQLiteDatabase db = channelMessages.getReadableDatabase();
+    	Cursor cursor = db.query(TABLE_NAME, FROM, null, null, null,
+    	null, ORDER_BY); // TABLE_NAME, FROM, WHERE, GROUP_BY, HAVING, ORDER_BY
+    	startManagingCursor(cursor);
+    	return cursor;
+    }
+    
     public void startServer() {
 		// starts server
 		try {
@@ -140,7 +165,25 @@ public class irssifusion extends Activity {
     	listMessages.setAdapter(new ArrayAdapter<Privmsg>(this, R.layout.channel_list_item, privMsgs));
     }
     
-    public void channelTest() {
+    public void channelTest(Cursor cursor) {
+    	
+//    	// Stuff them all into a big string
+//    	StringBuilder builder = new StringBuilder(
+//    	"Saved events:\n" );
+//    	while (cursor.moveToNext()) {
+//    	// Could use getColumnIndexOrThrow() to get indexes
+//    	long id = cursor.getLong(0);
+//    	long time = cursor.getLong(1);
+//    	String title = cursor.getString(2);
+//    	builder.append(id).append(": " );
+//    	builder.append(time).append(": " );
+//    	builder.append(title).append("\n" );
+//    	}
+//    	// Display on the screen
+//    	TextView text = (TextView) findViewById(R.id.text);
+//    	text.setText(builder);
+
+    	
     	listMessages.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
     		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     			menu.setHeaderTitle("ContextMenu");

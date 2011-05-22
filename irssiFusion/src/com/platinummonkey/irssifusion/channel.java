@@ -51,6 +51,18 @@ public class channel extends Activity {
 	TextView txtChannelTopic;
 	ListView listMessages;
 	protected ArrayList<Privmsg> privMsgs = new ArrayList<Privmsg>();
+    
+	Socket testSocket = null;
+	//DataOutputStream out = null;
+	//DataInputStream in = null;
+	PrintWriter out = null;
+	BufferedReader in = null;
+	String plaintext;
+	
+//	TextView txtServerChannel;
+//	TextView txtChannelTopic;
+//	ListView listMessages;
+//	protected ArrayList<Privmsg> privMsgs = new ArrayList<Privmsg>();
 	
 	// onCreate
     @Override
