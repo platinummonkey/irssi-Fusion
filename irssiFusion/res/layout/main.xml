@@ -1,34 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="horizontal"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:gravity="center_horizontal">
-
-	<Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:id="@+id/btnList" android:text="Test List"></Button>
-	<Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:id="@+id/btnChannel" android:text="Test Channel"></Button>
-	<Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:id="@+id/btnQuery" android:text="Test Query"></Button>
-
-</LinearLayout>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/ScrollView01" android:layout_width="fill_parent"
-	android:layout_height="wrap_content">
-	<TextView
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:text="Test one of the features"
-		android:layout_gravity="center_horizontal"
-		android:id="@+id/txtData"
-	/>
-</ScrollView>
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/replytext" android:text="@string/replytext"></TextView>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/statustext" android:text="@string/statustext"></TextView>
 </LinearLayout>

@@ -4,7 +4,5 @@
     <string name="app_name">irssi Fusion</string> 
     <string name="statustext">Connecting...</string>
     <string name="replytext"></string>
-    <string name="channelname">Channel name</string>
-    <string name="messages">Some message</string>
-    <string name="menutitle">irssi Fusion Settings</string>
+    <string name="menutitle">menu title</string>
 </resources>

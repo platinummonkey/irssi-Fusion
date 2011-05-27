@@ -14,31 +14,15 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int ListView01=0x7f050002;
-        public static final int ScrollView01=0x7f050006;
-        public static final int btnChannel=0x7f050004;
-        public static final int btnList=0x7f050003;
-        public static final int btnQuery=0x7f050005;
-        public static final int channeltopic=0x7f050001;
-        public static final int menutitle=0x7f050008;
-        public static final int serverchannel=0x7f050000;
-        public static final int serverquery=0x7f050009;
-        public static final int txtData=0x7f050007;
+        public static final int replytext=0x7f050000;
+        public static final int statustext=0x7f050001;
     }
     public static final class layout {
-        public static final int channel=0x7f030000;
-        public static final int channel_list_item=0x7f030001;
-        public static final int channellist=0x7f030002;
-        public static final int main=0x7f030003;
-        public static final int menu=0x7f030004;
-        public static final int query=0x7f030005;
+        public static final int main=0x7f030000;
     }
     public static final class string {
         public static final int app_name=0x7f040001;
-        public static final int channelname=0x7f040004;
         public static final int hello=0x7f040000;
-        public static final int menutitle=0x7f040006;
-        public static final int messages=0x7f040005;
         public static final int replytext=0x7f040003;
         public static final int statustext=0x7f040002;
     }

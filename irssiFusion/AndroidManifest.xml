@@ -10,16 +10,6 @@
 	<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-    	<provider android:name=".irssiFusionProvider"
-    			  android:authorities="com.platinummonkey.irssifusion" />
-    			  
-    	<service android:enabled="true"
-    	         android:name=".irssiFusionService"
-    	         android:process=":remote">
-    	         <intent-filter>
-    	         	<action android:name="com.platinummonkey.irssifusion.irssiFusionService" />
-    	         </intent-filter>
-    	</service>
         <activity android:name=".irssifusion"
                   android:label="@string/app_name">
             <intent-filter>
