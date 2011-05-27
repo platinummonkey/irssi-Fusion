@@ -1,126 +1,64 @@
-16:49 <   mokomull> | pltmnky: Do you want your service to run in-process or as a separate process?
-16:49 <   mokomull> | pltmnky: Also, why do you need a content provider?
-16:49 <     pltmnky> | mokomull: i was just playing with learning content providers
-16:50 <     pltmnky> | um, well lifetime, probably forever or as long as possible
-16:52 <     pltmnky> | so likely a separate process
-16:52 <    mokomull> | What's the service going to do?
-16:52 <     pltmnky> | poll my server every so often for updates
-16:56 <     pltmnky> | suggestions or specific things I should be looking at?
-17:19 <    mokomull> | I'll discuss more in-depth when I get home with you.
-17:19 <    mokomull> | You probably shouldn't be polling your server for updates :)
-17:21 <     pltmnky> | well really i want it to maintain a connection and reconnect when necessary and there is signal. I did find the network state stuff
-17:21 <     pltmnky> | poll was a poor choice of wording
-17:22            --> | pckizer [pckizer@shaman.nostrum.com] has joined #android
-17:22            --- | ChanServ sets modes [#android +o pckizer]
-17:23            <-- | pckizer [pckizer@shaman.nostrum.com] has left #android ( )
-17:23            --> | pckizer [pckizer@shaman.nostrum.com] has joined #android
-17:23            --- | ChanServ sets modes [#android +o pckizer]
-17:31            --- | Netsplit irc.drwilco.net <-> anarchy.tamu.edu quits: turtleman, Nic, @pckizer, txmoose
-17:33            --> | Netsplit Over - Joins: pckizer, Nic, turtleman
-17:34 <   mokomull> | pltmnky: You could potentially use C2DM to get Android to wake your app up when you need to re-connect, instead of maintaining a constant connection or polling something.
-17:35            --> | txmoose [txmoose@tamulug.tamu.edu] has joined #android
-18:07 <     pltmnky> | hmmm cool
-18:07 <     pltmnky> | make the server demand attention lol
-19:14 <       Maker> | http://www.droid-life.com/2011/05/26/a-closer-look-at-the-droidx2-and-its-qhd-display-pentile-at-its-finest/
-19:15 <       Maker> | Wow
-19:15 <       Maker> | Thats an awesome article on the DX2's new screen... Pentile Display, Whatever the hell that means.
-19:18 <    mokomull> | Wikipedia it.
-19:18 <    mokomull> | I was looking at that article this morning and it should tell you all you need to know :P
-19:19 <       Maker> | I understand now... I kinda thought "pentile" ~= "penrose"?
-19:19 <       Maker> | :P
-19:20 <    mokomull> | nope
-19:20 <    mokomull> | Penrose tiling is not something I'd want to do in silicon :P
-19:21 <       Maker> | Lol
-20:14 <     pltmnky> | mokomull: awesome i think i will use c2dm in the end, it does just what i need
-20:14 <     pltmnky> | thanks :D
-20:15 <     pltmnky> | make the server say hey android i got sumthin for ya!
-20:15 <     pltmnky> | :P
-20:30 <   mokomull> | pltmnky: I'm not sure what you need to do on the server end... if your users would each need to set up a c2dm key (e.g. so irssi can signal to c2dm) then it might be cumbersome/impossible
-20:30 <    mokomull> | dunno if you were gonna run this through a web service somewhere or what
-20:43 <     pltmnky> | oh lame sauce i forgot about htat :/
-20:43 <     pltmnky> | I'll probably just make a standard service then
-20:44 <     pltmnky> | make the whole thing light as hell to keep memory usage low so it doesnt get the hammer from android :P
-20:58 <    mokomull> | services don't get killed
-21:20 <     pltmnky> | really? i keep reading they do if memory fills up and android decides its no longer needed
-21:20 <    mokomull> | UI processes do
-21:22 <     pltmnky> | doesnt the activity and the service all run on the same process
-21:22 <     pltmnky> | that was my understanding at least
-21:23 <     pltmnky> | if not then im worrying for nothing
-21:25 <    mokomull> | The Android system will force-stop a service only when memory is low and it must recover system resources for the activity that has user focus. If the service is bound to an activity that has user focus, then it's less likely to be killed, and if the service is declared to run in the foreground (discussed later), then it will almost never be killed.
-21:26 <    mokomull> | So ... it *can* get killed, and you definitely want to assume it will be, but it gets killed far less often than UI threads
-21:26 <     pltmnky> | ah clarification
-21:27 <    mokomull> | I'm trying to re-understand the process model of a service though ... docs have this big giant "CAUTION!  It runs on the main thread of the calling process unless you specify otherwise!" and doesn't say what the fuck you do to specify otherwise
-21:27 <     pltmnky> | hehe, thats what i was fussing over
-21:27 <     pltmnky> | and declaring persistence=true in the manifest only works for apps that ship with android
-21:28 <    mokomull> | What's that supposed to do ?
-21:28 <     pltmnky> | never ever kill it
-21:28 <     pltmnky> | ever
-21:28 <    mokomull> | I wouldn't bother doing the forground thing to make it not get killed ... frankly, your service *isn't* very important.
-21:28 <     pltmnky> | lol
-21:28 <     pltmnky> | i wasw more woried about it going for 20 min then android saying bye bye
-21:29 <    mokomull> | That does explain why my IM app disappeared on me the other day though :P
-21:29 <     pltmnky> | i am likely to only check every few hours or so
-21:29 <    mokomull> | Nah, that only happens to UI threads
-21:29 <    mokomull> | check?
-21:29 <     pltmnky> | ui pullup and manually check
-21:29 <    mokomull> | Ah.  Most things leave an "ongoing" notification, so I'd notice an icon missing.
-21:29 <     pltmnky> | but I do like having notices immeadiately too
-21:30 <     pltmnky> | oh! right!
-21:30 <     pltmnky> | hm
-21:30 <     pltmnky> | ill prob just make that an option then
-21:30 <    mokomull> | Damnit, you're inspiring me to do Android dev work again :P
-21:30 <     pltmnky> | hahaha
-21:30 <     pltmnky> | help me ;)
-21:31 <     pltmnky> | although i am getting comfortable with android finally somewhat minus the confusing docs :P
-21:31 <    mokomull> | It's kind of nice once you understand it.
-21:31 <    mokomull> | But take it from experience: the first shot getting any of this working is gonna suck
-21:32 <    mokomull> | My senior design project app was one of the crappiest things I've seen
-21:32 <     pltmnky> | thats why I have like 21302103 test projects :P
-21:33 <    mokomull> | "A process that is running a service that has been started with the startService() method and does not fall into either of the two higher categories. Although service processes are not directly tied to anything the user sees, they are generally doing things that the user cares about (such as playing music in the background or downloading data on the network), so the system keeps them running unless there's not enough memory to retain them along with all 
-21:33 <    mokomull> | From http://developer.android.com/guide/topics/fundamentals/processes-and-threads.html
-21:33 <     pltmnky> | yeah, which makes me think there is some other mystery magic way to start them seperately
-21:34 <    mokomull> | I know there is.
-21:34 <    mokomull> | We did it.
-21:34 <    mokomull> | I think.
-21:34 <    mokomull> | Maybe.
-21:34 <     pltmnky> | heh
-21:34 <     pltmnky> | its like some sort of android dev right to passage
-21:36 <    mokomull> | http://developer.android.com/reference/android/app/Service.html#startForeground(int, android.app.Notification) Aha, explains why things like the "Ongoing" notification.
-21:36 <     pltmnky> | which makes me think foreground is the way to go unless you find the magic command
-21:37 <     pltmnky> | but foreground makes me think the whole activity and service must stay in memory :/
-21:38 <    mokomull> | AHA! If we want to make this service run in a remote process (instead of the standard one for its .apk), we can use android:process in its manifest tag to specify one:
-21:38 <    mokomull> | <service android:name=".app.MessengerService" android:process=":remote" />
-21:38 <     pltmnky> | OH!
-21:38 <     pltmnky> | awesome, but do the normal IPCs still work?
-21:39 <    mokomull> | What do you mean by "normal IPCs"?
-21:40 <    mokomull> | Message / Handler?  or aidl?
-21:40 <    mokomull> | The latter, yes; the former, no.
-21:40 <    mokomull> | Message / Handler is inter-thread, not inter-process.
-21:40 <     pltmnky> | yeah i was takling about m/h
-21:40 <     pltmnky> | so aidl fun :P
-21:41 <    mokomull> | Or am I completely lying to you?
-21:41 <     pltmnky> | </sarcasm>
-21:41 <     pltmnky> | i dunno are you?
-21:41 <     pltmnky> | but then if you answer that that could be a lie too
-21:42 <    mokomull> | Look at the "Remote Messenger Service" sample at http://developer.android.com/reference/android/app/Service.html
-21:42 <    mokomull> | I don't quite understand it... the documentation seems to conflict.
-21:43 <    mokomull> | Ah, okay, it uses a special thing called "Messenger" which is itself an AIDL interface to wrap up messages between processes.
-21:43 <    mokomull> | My vote: your API and code will probably look cleaner if you use AIDL yourself
-21:44 <     pltmnky> | heh
-21:45 <    mokomull> | Our service was just a thread in the same process ... you may or may not want that.
-21:45 <     pltmnky> | http://developer.android.com/guide/topics/fundamentals/processes-and-threads.html explains the whole who gets killed first pretty wel
-21:46 <    mokomull> | You probably do, really, unless other apps are going to use your service.  In which case, Handler/Message are what you'll want to use.
-21:46 <    mokomull> | Yeah, I linked to that at 21:33 :)
-21:47 <    mokomull> | I'm gonna go to bed.  Keep me interested in this, though ... I'll fork you on github and help you out :)
-21:48 <     pltmnky> | ill push to github now then ;P
-21:49 <     pltmnky> | ill try to comment some parts more tomorrow morning on the fast machine :P, netbook kinda crawls :P
-21:52 <    mokomull> | Well, I'll be working tomorrow ... I probably won't get around to anything until Saturday or so
-21:52 <    mokomull> | Figure out how to get +o in here and drop the URL in the topic.
-21:53 <     pltmnky> | pckizer: mokomull needs +o ;P
-21:53 <     pltmnky> | https://github.com/platinummonkey/irssi-Fusion
-21:53              * | mokomull thinks someone here has ChanServ privileges ... /me guesses Maker ?
-21:53 <     pltmnky> | ignore the ircTalk_server for now, that is actually out of date, irssiFusion is the android app
-21:54 <     pltmnky> | in fact i need to just remove it and put whats actually important there, ill get on that tomorrow morning too
+This is a list of basic goals for irssiFusion, and is still a work in progress.
+
+
+==irssi Integration==
+Functional piece that leaves the entire functionality of irssi available to the server application
+	- Simply forward all activity to the server application for its own management. Keep irssi minimally affected by this application.
+
+==Server Application==
+Application that maintains incoming activity from irssi, logs, stores, and also maintains mirrored state of android device. This should also pass activity from the android application to irssi.
+	- Potentially manage file transfers from android device through dcc sends on irssi.
+
+==Main Service==
+Long-term service to send/recieve updates to the server
+	- this should be a separate process ":remote" - open functionality to other apps that want to use this service
+	- this service is intended to be lightweight and do as little as possible
+
+==Content Provider==
+this may or may not happen
+ - Make this an open system for other clients to use?
+ - CPs provide the ability to update ListAdapters without using broadcast receivers from the Service.
+
+==Android UI Application==
+ - Immitate Yaaic UI - https://github.com/pocmo/Yaaic/
+ - Add themeing functionality if it doesn't exist yet
+ - Provide quick name-completion, quick privmessaging, quick whois information, etc..
+ - Provide a method to add nicks to contact information, utilize this information, or simply add a "msg this person on IRC" option within the contact options menu. (Maybe) - maybe only if they are online?
+
+==Android Notifications==
+  - Filter-based notification system 
+     - IE: Pubnotice from <user3> on #channel2 
+          - whitelist users for all channels, etc..
+  - Notification for irssi connection failure/recconnect/etc (not on android but the actual irssi session)
+  - Notifications of pending dcc file transfers
+
+
+
+
+
+TAMUnet #android Convo:
+	well really i want it to maintain a connection and reconnect when necessary and there is signal. I did find the network state stuff
+	17:34 <   mokomull> | pltmnky: You could potentially use C2DM to get Android to wake your app up when you need to re-connect, instead of maintaining a constant connection or polling something.
+	20:30 <   mokomull> | pltmnky: I'm not sure what you need to do on the server end... if your users would each need to set up a c2dm key (e.g. so irssi can signal to c2dm) then it might be cumbersome/impossible
+	20:43 <     pltmnky> | I'll probably just make a standard service then
+	21:25 <    mokomull> | The Android system will force-stop a service only when memory is low and it must recover system resources for the activity that has user focus. If the service is bound to an activity that has user focus, then it's less likely to be killed, and if the service is declared to run in the foreground (discussed later), then it will almost never be killed.
+	21:29 <    mokomull> | Ah.  Most things leave an "ongoing" notification, so I'd notice an icon missing.
+	21:29 <     pltmnky> | but I do like having notices immeadiately too
+	21:30 <     pltmnky> | ill prob just make that an option then
+	21:33 <    mokomull> | "A process that is running a service that has been started with the startService() method and does not fall into either of the two higher categories. Although service processes are not directly tied to anything the user sees, they are generally doing things that the user cares about (such as playing music in the background or downloading data on the network), so the system keeps them running unless there's not enough memory to retain them along with all 
+	21:33 <    mokomull> | From http://developer.android.com/guide/topics/fundamentals/processes-and-threads.html
+	21:36 <    mokomull> | http://developer.android.com/reference/android/app/Service.html#startForeground(int, android.app.Notification) Aha, explains why things like the "Ongoing" notification.
+	21:38 <    mokomull> | AHA! If we want to make this service run in a remote process (instead of the standard one for its .apk), we can use android:process in its manifest tag to specify one:
+	21:38 <    mokomull> | <service android:name=".app.MessengerService" android:process=":remote" />
+	21:40 <    mokomull> | Message / Handler?  or aidl?
+	21:40 <    mokomull> | The latter, yes; the former, no.
+	21:40 <    mokomull> | Message / Handler is inter-thread, not inter-process.
+	21:42 <    mokomull> | Look at the "Remote Messenger Service" sample at http://developer.android.com/reference/android/app/Service.html
+	21:43 <    mokomull> | Ah, okay, it uses a special thing called "Messenger" which is itself an AIDL interface to wrap up messages between processes.
+	21:43 <    mokomull> | My vote: your API and code will probably look cleaner if you use AIDL yourself
+	21:45 <    mokomull> | Our service was just a thread in the same process ... you may or may not want that.
+	21:46 <    mokomull> | You probably do, really, unless other apps are going to use your service.  In which case, Handler/Message are what you'll want to use.
+
 21:55 <    mokomull> | So what are you doing on the irssi side?
 21:55 <     pltmnky> | there is a perl script i wrote that communicates with the server script
 21:55 <     pltmnky> | just over unix sockets
@@ -153,8 +91,6 @@
 22:00 <    mokomull> | SSH overhead is minimal, especially if it's doing compression on the stream.  At least from a bandwidth standpoint.
 22:01 <     pltmnky> | and something that actually looks decent on android and has full functionality
 22:01 <    mokomull> | You used Yaaic yet?
-22:01 <     pltmnky> | wtf
-22:01 <     pltmnky> | what the fuck does that even stand for?!
 22:03 <     pltmnky> | oh, the interface is nice, but it seems like a client run from teh phone
 22:03 <     pltmnky> | not what i want
 22:05 <    mokomull> | It is, but I pointed that at an SSH tunnel to an irssi proxy, and I got pretty much exactly what you want.
@@ -164,9 +100,6 @@
 22:07 <     pltmnky> | there is my justification if you really require a 'valid' one ;P lol
 22:07 <     pltmnky> | i want total control from the android over my irssi session on my server
 22:08 <    mokomull> | I'm not looking for justification, actually... I'm just trying to get a feel for what the fuck you want.
-22:08 <     pltmnky> | EVERYTHING
-22:08 <     pltmnky> | basically
-22:09 <    mokomull> | Your definition of EVERYTHING is different from my definition of ??
 22:10 <     pltmnky> | well i want basically the Yaaic feel, but i want it native to the android, and seamless integration with the full functionality of irssi
 22:10 <    mokomull> | "native to the android", isn't that yaaic already?
 22:11 <     pltmnky> | technically yes
@@ -176,13 +109,10 @@
 22:11 <    mokomull> | But I hate UI development :)
 22:11 <     pltmnky> | me too
 22:11 <     pltmnky> | :P
-22:11 <    mokomull> | 'tis what I did [shittily] for MS :P
 22:12 <     pltmnky> | if at all possible i would like to have it customizable too, like irssi themes (dunno if Yaaic already has that)
-22:12 <    mokomull> | Maker: btw: http://www.reddit.com/r/Android/comments/hl4u8/htc_confirms_it_will_no_longer_lock_boot_loaders/
 22:13 <    mokomull> | I don't think it does, but it's GPL'ed... we can certainly add that.
 22:13 <     pltmnky> | and to add effects, personally i would enjoy a set of notification filters, ie if someone pubnotices me from say #channel3 i get a nice little notification
 22:14 <    mokomull> | That would be kind of nice, actually.
 22:14 <     pltmnky> | i do that now with another irssi perl script and gmail sms forwarding
 22:15 <     pltmnky> | but it would be nice to be really from my phone not an sms that i have to open my messaging app to view
 22:16 <    mokomull> | Okay, now that I have a clue what the hell you want to do ... you should probably write that up in a "GOALS" file or something
-22:16 <     pltmnky> | heh, ill copy and paste this whole convo actually for now then sift through and make specific points when i get in tomorrow

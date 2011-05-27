@@ -1,1 +1,10 @@
-this is intentionally left blank for now
+==INSTALL== WIP!!!
+THIS IS FOR DEVELOPERS ONLY!
+
+grab the source:
+   https://github.com/platinummonkey/irssi-Fusion
+
+1. start the test_server.py script - comes loaded with a channel query over a
+   tcp socket
+2. load the irssi script socket-remote.pl
+3. test with the android application
