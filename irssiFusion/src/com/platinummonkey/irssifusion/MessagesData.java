@@ -16,7 +16,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-
 public class MessagesData extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "irssiFusionMessages.db";
 	private static final int DATABASE_VERSION = 1;
@@ -29,7 +28,7 @@ public class MessagesData extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE " + TABLE_NAME + " (" + _ID
-				+ "INTEGER PRIMARY KEY AUTOINCREMENT, " + TIME
+				+ " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIME
 				+ " INTEGER, " + SEND + " INTEGER," + SERVER
 				+ " TEXT NOT NULL," + TYPE + " TEXT NOT NULL," + TOPIC
 				+ " TEXT NOT NULL," + NICK + " TEXT NOT NULL," + ADDRESS
