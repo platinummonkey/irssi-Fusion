@@ -38,7 +38,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class channel extends Activity {
+public class query extends Activity {
 //    /** Called when the activity is first created. */
 //    @Override
 //    public void onCreate(Bundle savedInstanceState) {
@@ -151,7 +151,7 @@ public class channel extends Activity {
     }
     
     private static String[] FROM = { _ID, TIME, SEND, SERVER, TYPE, TOPIC, NICK, ADDRESS, MESSAGE, HILIGHT, NICKLIST, };
-    private static String WHERE = TYPE + " like 'channel'";
+    private static String WHERE = TYPE + " like 'query'";
     private static String ORDER_BY = TIME + " ASC";
     private Cursor getMessages() {
     	// Perform a managed query. The Activity will handle closing
